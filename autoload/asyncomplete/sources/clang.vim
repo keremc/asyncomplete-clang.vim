@@ -12,12 +12,16 @@ function! asyncomplete#sources#clang#completor(opts, ctx) abort
         return
     endif
 
-    let clang_args = get(config, 'clang_args', {'default': [], 'c': ['-std=c11'], 'cpp': ['-std=c++11']})
+    let clang_args = get(config, 'clang_args',
+        \ {'default': [], 'c': ['-std=c11'], 'cpp': ['-std=c++11']})
     let clang_args_for_ctx = s:get_clang_args_for_ctx(a:ctx, clang_args)
 
     let tmp_file = s:write_to_tmp_file()
 
-    let cmd = [clang_path] + clang_args_for_ctx + ['-fsyntax-only', '-Xclang', '-code-completion-macros', '-Xclang', '-code-completion-at=' . tmp_file . ':' . a:ctx['lnum'] . ':' . a:ctx['col'], tmp_file]
+    let cmd = [clang_path] + clang_args_for_ctx +
+        \ ['-fsyntax-only', '-Xclang', '-code-completion-macros', '-Xclang',
+        \ '-code-completion-at=' . tmp_file . ':' . a:ctx['lnum'] . ':' .
+        \ a:ctx['col'], tmp_file]
 
     let matches = []
 
