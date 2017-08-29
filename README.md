@@ -32,8 +32,12 @@ autocmd User asyncomplete_setup call asyncomplete#register_source(
     \     'whitelist': ['c', 'cpp'],
     \     'completor': function('asyncomplete#sources#clang#completor'),
     \     'config': {
-    \         'clang_path': expand('/usr/bin/clang'),
-    \         'clang_args': ['-std=c++14']
+    \         'clang_path': 'clang',
+    \         'clang_args': {
+    \             'default': [],
+    \             'c': ['-std=c11'],
+    \             'cpp': ['-std=c++11']
+    \         }
     \     }
     \ }))
 ```
