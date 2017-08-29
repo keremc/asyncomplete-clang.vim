@@ -20,8 +20,8 @@ function! asyncomplete#sources#clang#completor(opts, ctx) abort
 
     let cmd = [clang_path] + clang_args_for_ctx +
         \ ['-fsyntax-only', '-Xclang', '-code-completion-macros', '-Xclang',
-        \ '-code-completion-at=' . tmp_file . ':' . a:ctx['lnum'] . ':' .
-        \ a:ctx['col'], tmp_file]
+        \ printf('-code-completion-at=%s:%d:%d', tmp_file, a:ctx['lnum'],
+        \     a:ctx['col']), tmp_file]
 
     let matches = []
 
