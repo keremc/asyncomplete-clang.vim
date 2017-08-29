@@ -35,7 +35,8 @@ function! s:handler(opts, ctx, matches, job_id, data, event) abort
 
             call add(a:matches, {
                 \ 'word': completion_item,
-                \ 'dup': 1, 'icase': 1})
+                \ 'menu': printf('[%s]', a:opts['name']),
+                \ 'dup': 0, 'icase': 1})
         endfor
     elseif a:event == 'exit'
         let cur_column = a:ctx['col']
