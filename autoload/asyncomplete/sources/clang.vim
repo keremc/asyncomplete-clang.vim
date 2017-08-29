@@ -7,15 +7,17 @@ endfunction
 function! asyncomplete#sources#clang#completor(opts, ctx) abort
     let config = get(a:opts, 'config', {})
     let clang_path = get(config, 'clang_path', 'clang')
-    let clang_args = get(config, 'clang_args', ['-x', 'c++', '-std=c++11'])
 
     if !executable(clang_path)
         return
     endif
 
+    let clang_args = get(config, 'clang_args', {'default': [], 'c': ['-std=c11'], 'cpp': ['-std=c++11']})
+    let clang_args_for_ctx = s:get_clang_args_for_ctx(a:ctx, clang_args)
+
     let tmp_file = s:write_to_tmp_file()
 
-    let cmd = [clang_path] + clang_args + ['-fsyntax-only', '-Xclang', '-code-completion-macros', '-Xclang', '-code-completion-at=' . tmp_file . ':' . a:ctx['lnum'] . ':' . a:ctx['col'], tmp_file]
+    let cmd = [clang_path] + clang_args_for_ctx + ['-fsyntax-only', '-Xclang', '-code-completion-macros', '-Xclang', '-code-completion-at=' . tmp_file . ':' . a:ctx['lnum'] . ':' . a:ctx['col'], tmp_file]
 
     let matches = []
 
@@ -46,6 +48,13 @@ function! s:handler(opts, ctx, matches, job_id, data, event) abort
         call asyncomplete#complete(a:opts['name'], a:ctx, start_column,
             \ a:matches)
     endif
+endfunction
+
+function! s:get_clang_args_for_ctx(ctx, clang_args) abort
+    let lang = a:ctx['filetype'] == 'c' ? 'c' : 'c++'
+    let default_args = a:clang_args['default']
+    let ft_specific_args = a:clang_args[a:ctx['filetype']]
+    return ['-x', lang] + default_args + ft_specific_args
 endfunction
 
 function! s:write_to_tmp_file() abort
