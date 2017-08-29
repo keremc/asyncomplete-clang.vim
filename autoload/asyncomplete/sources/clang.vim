@@ -28,7 +28,7 @@ endfunction
 function! s:handler(opts, ctx, matches, job_id, data, event) abort
     if a:event == 'stdout'
         for line in a:data
-            let completion_item = matchstr(line, '\v^COMPLETION: \zs(\k+)')
+            let completion_item = matchstr(line, '^COMPLETION: \zs.*\ze :')
             if empty(completion_item)
                 continue
             endif
