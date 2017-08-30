@@ -5,15 +5,14 @@ function! asyncomplete#sources#clang#get_source_options(opts) abort
 endfunction
 
 function! asyncomplete#sources#clang#completor(opts, ctx) abort
-    let config = get(a:opts, 'config', {})
-    let clang_path = get(config, 'clang_path', 'clang')
+    let config = s:get_config(a:opts)
+    let clang_path = config['clang_path']
+    let clang_args = config['clang_args']
 
     if !executable(clang_path)
         return
     endif
 
-    let clang_args = get(config, 'clang_args',
-        \ {'default': [], 'c': ['-std=c11'], 'cpp': ['-std=c++11']})
     let clang_args_for_ctx = s:get_clang_args_for_ctx(a:ctx, clang_args)
 
     let tmp_file = s:write_to_tmp_file()
@@ -52,6 +51,25 @@ function! s:handler(opts, ctx, start_column, matches, job_id, data, event) abort
         call asyncomplete#complete(a:opts['name'], a:ctx, a:start_column,
             \ a:matches)
     endif
+endfunction
+
+function! s:get_config(opts) abort
+    let config = deepcopy(get(a:opts, 'config', {}))
+    let config['clang_path'] = get(config, 'clang_path', 'clang')
+    let config['clang_args'] = get(config, 'clang_args', {})
+    let config['clang_args']['default'] = get(config['clang_args'], 'default', [])
+    let config['clang_args']['c'] = get(config['clang_args'], 'c', ['-std=c11'])
+    let config['clang_args']['cpp'] = get(config['clang_args'], 'cpp', ['-std=c++11'])
+
+    let config['clang_path'] = get(b:, 'asyncomplete_clang_path', config['clang_path'])
+
+    if exists('b:asyncomplete_clang_args')
+        for key in keys(b:asyncomplete_clang_args)
+            let config['clang_args'][key] = b:asyncomplete_clang_args[key]
+        endfor
+    endif
+
+    return config
 endfunction
 
 function! s:get_clang_args_for_ctx(ctx, clang_args) abort
