@@ -7,13 +7,12 @@ endfunction
 function! asyncomplete#sources#clang#completor(opts, ctx) abort
     let config = s:get_config(a:opts)
     let clang_path = config['clang_path']
-    let clang_args = config['clang_args']
 
     if !executable(clang_path)
         return
     endif
 
-    let clang_args_for_ctx = s:get_clang_args_for_ctx(a:ctx, clang_args)
+    let clang_args = s:get_clang_args(a:ctx, config['clang_args'])
 
     let tmp_file = s:write_to_tmp_file()
 
@@ -21,7 +20,7 @@ function! asyncomplete#sources#clang#completor(opts, ctx) abort
     let text_length = len(matchstr(a:ctx['typed'], '\k\+$'))
     let start_column = cur_column - text_length
 
-    let cmd = [clang_path] + clang_args_for_ctx +
+    let cmd = [clang_path] + clang_args +
         \ ['-fsyntax-only', '-Xclang', '-code-completion-macros', '-Xclang',
         \ printf('-code-completion-at=%s:%d:%d', tmp_file, a:ctx['lnum'],
         \     start_column), tmp_file]
@@ -72,11 +71,11 @@ function! s:get_config(opts) abort
     return config
 endfunction
 
-function! s:get_clang_args_for_ctx(ctx, clang_args) abort
+function! s:get_clang_args(ctx, clang_args) abort
     let lang = a:ctx['filetype'] == 'c' ? 'c' : 'c++'
     let common_args = a:clang_args['common']
-    let ft_specific_args = a:clang_args[a:ctx['filetype']]
-    return ['-x', lang] + common_args + ft_specific_args
+    let lang_specific_args = a:clang_args[a:ctx['filetype']]
+    return ['-x', lang] + common_args + lang_specific_args
 endfunction
 
 function! s:write_to_tmp_file() abort
