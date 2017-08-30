@@ -57,7 +57,7 @@ function! s:get_config(opts) abort
     let config = deepcopy(get(a:opts, 'config', {}))
     let config['clang_path'] = get(config, 'clang_path', 'clang')
     let config['clang_args'] = get(config, 'clang_args', {})
-    let config['clang_args']['default'] = get(config['clang_args'], 'default', [])
+    let config['clang_args']['common'] = get(config['clang_args'], 'common', [])
     let config['clang_args']['c'] = get(config['clang_args'], 'c', ['-std=c11'])
     let config['clang_args']['cpp'] = get(config['clang_args'], 'cpp', ['-std=c++11'])
 
@@ -74,9 +74,9 @@ endfunction
 
 function! s:get_clang_args_for_ctx(ctx, clang_args) abort
     let lang = a:ctx['filetype'] == 'c' ? 'c' : 'c++'
-    let default_args = a:clang_args['default']
+    let common_args = a:clang_args['common']
     let ft_specific_args = a:clang_args[a:ctx['filetype']]
-    return ['-x', lang] + default_args + ft_specific_args
+    return ['-x', lang] + common_args + ft_specific_args
 endfunction
 
 function! s:write_to_tmp_file() abort

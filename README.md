@@ -34,7 +34,7 @@ autocmd User asyncomplete_setup call asyncomplete#register_source(
     \     'config': {
     \         'clang_path': 'clang',
     \         'clang_args': {
-    \             'default': [],
+    \             'common': [],
     \             'c': ['-std=c11'],
     \             'cpp': ['-std=c++11']
     \         }
