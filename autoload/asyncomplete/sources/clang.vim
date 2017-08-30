@@ -20,10 +20,9 @@ function! asyncomplete#sources#clang#completor(opts, ctx) abort
     let text_length = len(matchstr(a:ctx['typed'], '\k\+$'))
     let start_column = cur_column - text_length
 
-    let cmd = [clang_path] + clang_args +
-        \ ['-fsyntax-only', '-Xclang', '-code-completion-macros', '-Xclang',
-        \ printf('-code-completion-at=%s:%d:%d', tmp_file, a:ctx['lnum'],
-        \     start_column), tmp_file]
+    let cmd = [clang_path] + clang_args + ['-fsyntax-only',
+        \ '-Xclang', '-code-completion-macros', '-Xclang', '-code-completion-at',
+        \ '-Xclang', printf('%s:%d:%d', tmp_file, a:ctx['lnum'], start_column), tmp_file]
 
     let matches = []
 
@@ -42,13 +41,11 @@ function! s:handler(opts, ctx, start_column, matches, job_id, data, event) abort
             endif
 
             call add(a:matches, {
-                \ 'word': completion_item,
-                \ 'menu': printf('[%s]', a:opts['name']),
+                \ 'word': completion_item, 'menu': printf('[%s]', a:opts['name']),
                 \ 'dup': 0, 'icase': 1})
         endfor
     elseif a:event == 'exit'
-        call asyncomplete#complete(a:opts['name'], a:ctx, a:start_column,
-            \ a:matches)
+        call asyncomplete#complete(a:opts['name'], a:ctx, a:start_column, a:matches)
     endif
 endfunction
 
