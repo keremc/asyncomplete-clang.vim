@@ -12,7 +12,7 @@ function! asyncomplete#sources#clang#completor(opts, ctx) abort
         return
     endif
 
-    let clang_args = s:get_clang_args(a:ctx, config['clang_args'])
+    let clang_args = s:get_clang_args(a:ctx, config)
 
     let tmp_file = s:write_to_tmp_file()
 
@@ -68,10 +68,10 @@ function! s:get_config(opts) abort
     return config
 endfunction
 
-function! s:get_clang_args(ctx, clang_args) abort
+function! s:get_clang_args(ctx, config) abort
     let lang = a:ctx['filetype'] == 'c' ? 'c' : 'c++'
-    let common_args = a:clang_args['common']
-    let lang_specific_args = a:clang_args[a:ctx['filetype']]
+    let common_args = a:config['clang_args']['common']
+    let lang_specific_args = a:config['clang_args'][a:ctx['filetype']]
 
     let clang_complete_file = findfile('.clang_complete', '.;')
     if !empty(clang_complete_file)
