@@ -72,7 +72,11 @@ function! s:get_clang_args(ctx, clang_args) abort
     let lang = a:ctx['filetype'] == 'c' ? 'c' : 'c++'
     let common_args = a:clang_args['common']
     let lang_specific_args = a:clang_args[a:ctx['filetype']]
-    return ['-x', lang] + common_args + lang_specific_args
+
+    let clang_complete_file = findfile('.clang_complete', '.;')
+    let clang_complete_file_args = empty(clang_complete_file) ? [] : readfile(clang_complete_file)
+
+    return ['-x', lang] + common_args + lang_specific_args + clang_complete_file_args
 endfunction
 
 function! s:write_to_tmp_file() abort
