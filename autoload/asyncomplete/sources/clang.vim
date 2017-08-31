@@ -74,9 +74,17 @@ function! s:get_clang_args(ctx, clang_args) abort
     let lang_specific_args = a:clang_args[a:ctx['filetype']]
 
     let clang_complete_file = findfile('.clang_complete', '.;')
-    let clang_complete_file_args = empty(clang_complete_file) ? [] : readfile(clang_complete_file)
+    if !empty(clang_complete_file)
+        let clang_complete_file_args = readfile(clang_complete_file)
+        let working_dir = fnamemodify(clang_complete_file, ':p:h')
+        let working_dir_args = ['-working-directory', working_dir]
+    else
+        let clang_complete_file_args = []
+        let working_dir_args = []
+    endif
 
-    return ['-x', lang] + common_args + lang_specific_args + clang_complete_file_args
+    return working_dir_args + ['-x', lang] + common_args + lang_specific_args +
+        \ clang_complete_file_args
 endfunction
 
 function! s:write_to_tmp_file() abort
