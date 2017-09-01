@@ -51,8 +51,8 @@ function! s:get_config(opts) abort
         \     'clang_path': 'clang',
         \     'clang_args': {
         \         'common': [],
-        \         'c': ['-std=c11'],
-        \         'cpp': ['-std=c++11']
+        \         'c': [],
+        \         'cpp': []
         \     }
         \ }
 
