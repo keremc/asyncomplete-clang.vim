@@ -50,7 +50,7 @@ function! s:handler(opts, ctx, start_column, matches, job_id, data, event) abort
 endfunction
 
 function! s:get_config(opts) abort
-    let defaults = {
+    let config = {
         \     'clang_path': 'clang',
         \     'clang_args': {
         \         'common': [],
@@ -59,13 +59,13 @@ function! s:get_config(opts) abort
         \     }
         \ }
 
-    let config = get(a:opts, 'config', {})
+    let global_config = get(a:opts, 'config', {})
     let buffer_config = get(b:, 'asyncomplete_clang_config', {})
 
-    call s:update_dict(defaults, config)
-    call s:update_dict(defaults, buffer_config)
+    call s:update_dict(config, global_config)
+    call s:update_dict(config, buffer_config)
 
-    return defaults
+    return config
 endfunction
 
 function! s:get_clang_args(ctx, config) abort
