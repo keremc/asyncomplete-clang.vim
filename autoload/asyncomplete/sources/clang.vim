@@ -95,7 +95,8 @@ endfunction
 
 function! s:update_dict(dict, override)
     for key in keys(a:override)
-        if has_key(a:dict, key) && type(a:dict[key]) == v:t_dict
+        if type(a:override[key]) == v:t_dict &&
+            \ has_key(a:dict, key) && type(a:dict[key]) == v:t_dict
             call s:update_dict(a:dict[key], a:override[key])
         else
             let a:dict[key] = deepcopy(a:override[key])
