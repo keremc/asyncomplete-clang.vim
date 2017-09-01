@@ -54,7 +54,7 @@ function! s:get_config(opts) abort
         \         'c': [],
         \         'c++': []
         \     },
-        \     'file_types': {
+        \     'langs': {
         \         'c++': ['cpp']
         \     }
         \ }
@@ -118,9 +118,9 @@ function! s:get_lang(ctx, config)
     endif
 
     let file_type = a:ctx['filetype']
-    let file_types = a:config['global']['file_types']
-    for key in keys(file_types)
-        if index(file_types[key], file_type) >= 0
+    let langs = a:config['global']['langs']
+    for key in keys(langs)
+        if index(langs[key], file_type) >= 0
             return key
         endif
     endfor
