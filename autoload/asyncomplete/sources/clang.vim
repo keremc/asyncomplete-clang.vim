@@ -6,8 +6,8 @@ endfunction
 
 function! asyncomplete#sources#clang#completor(opts, ctx) abort
     let config = s:get_config(a:opts)
-    let clang_path = config['clang_path']
 
+    let clang_path = config['global']['clang_path']
     if !executable(clang_path)
         return
     endif
@@ -47,7 +47,7 @@ function! s:handler(opts, ctx, start_column, matches, job_id, data, event) abort
 endfunction
 
 function! s:get_config(opts) abort
-    let config = {
+    let global_config = {
         \     'clang_path': 'clang',
         \     'clang_args': {
         \         'common': [],
@@ -58,33 +58,34 @@ function! s:get_config(opts) abort
         \         'c++': ['cpp']
         \     }
         \ }
+    call s:update_dict(global_config, get(a:opts, 'config', {}))
 
-    let global_config = get(a:opts, 'config', {})
     let buffer_config = get(b:, 'asyncomplete_clang_config', {})
 
-    call s:update_dict(config, global_config)
-    call s:update_dict(config, buffer_config)
-
-    return config
+    return {'global': global_config, 'buffer': buffer_config}
 endfunction
 
 function! s:get_clang_args(ctx, config) abort
-    let lang = s:get_lang(a:ctx, a:config)
-    let common_args = a:config['clang_args']['common']
-    let lang_specific_args = a:config['clang_args'][lang]
+    let args = []
 
+    let lang = s:get_lang(a:ctx, a:config)
+    call extend(args, ['-x', lang])
+
+    let buffer_config = a:config['buffer']
     let clang_complete_file = findfile('.clang_complete', '.;')
-    if !empty(clang_complete_file)
-        let clang_complete_file_args = readfile(clang_complete_file)
+    let global_clang_args = a:config['global']['clang_args']
+
+    if has_key(buffer_config, 'clang_args')
+        call extend(args, buffer_config['clang_args'])
+    elseif !empty(clang_complete_file)
         let working_dir = fnamemodify(clang_complete_file, ':p:h')
-        let working_dir_args = ['-working-directory', working_dir]
+        call extend(args, ['-working-directory',  working_dir])
+        call extend(args, readfile(clang_complete_file))
     else
-        let clang_complete_file_args = []
-        let working_dir_args = []
+        call extend(args, global_clang_args['common'] + global_clang_args[lang])
     endif
 
-    return working_dir_args + ['-x', lang] + common_args + lang_specific_args +
-        \ clang_complete_file_args
+    return args
 endfunction
 
 function! s:write_to_tmp_file() abort
@@ -111,8 +112,13 @@ function! s:update_dict(dict, override)
 endfunction
 
 function! s:get_lang(ctx, config)
+    let buffer_config = a:config['buffer']
+    if has_key(buffer_config, 'lang')
+        return buffer_config['lang']
+    endif
+
     let file_type = a:ctx['filetype']
-    let file_types = a:config['file_types']
+    let file_types = a:config['global']['file_types']
     for key in keys(file_types)
         if index(file_types[key], file_type) >= 0
             return key
