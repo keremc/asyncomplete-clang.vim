@@ -37,6 +37,9 @@ autocmd User asyncomplete_setup call asyncomplete#register_source(
     \             'common': [],
     \             'c': ['-std=c11'],
     \             'c++': ['-std=c++11']
+    \         },
+    \         'file_types': {
+    \             'c++': ['cpp']
     \         }
     \     }
     \ }))

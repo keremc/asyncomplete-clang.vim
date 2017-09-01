@@ -53,6 +53,9 @@ function! s:get_config(opts) abort
         \         'common': [],
         \         'c': [],
         \         'c++': []
+        \     },
+        \     'file_types': {
+        \         'c++': ['cpp']
         \     }
         \ }
 
@@ -66,7 +69,7 @@ function! s:get_config(opts) abort
 endfunction
 
 function! s:get_clang_args(ctx, config) abort
-    let lang = a:ctx['filetype'] == 'c' ? 'c' : 'c++'
+    let lang = s:get_lang(a:ctx, a:config)
     let common_args = a:config['clang_args']['common']
     let lang_specific_args = a:config['clang_args'][lang]
 
@@ -105,4 +108,15 @@ function! s:update_dict(dict, override)
             let a:dict[key] = deepcopy(a:override[key])
         endif
     endfor
+endfunction
+
+function! s:get_lang(ctx, config)
+    let file_type = a:ctx['filetype']
+    let file_types = a:config['file_types']
+    for key in keys(file_types)
+        if index(file_types[key], file_type) >= 0
+            return key
+        endif
+    endfor
+    return file_type
 endfunction
