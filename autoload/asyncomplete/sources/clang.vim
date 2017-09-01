@@ -50,22 +50,22 @@ function! s:handler(opts, ctx, start_column, matches, job_id, data, event) abort
 endfunction
 
 function! s:get_config(opts) abort
-    let config = deepcopy(get(a:opts, 'config', {}))
-    let config['clang_path'] = get(config, 'clang_path', 'clang')
-    let config['clang_args'] = get(config, 'clang_args', {})
-    let config['clang_args']['common'] = get(config['clang_args'], 'common', [])
-    let config['clang_args']['c'] = get(config['clang_args'], 'c', ['-std=c11'])
-    let config['clang_args']['cpp'] = get(config['clang_args'], 'cpp', ['-std=c++11'])
+    let defaults = {
+        \     'clang_path': 'clang',
+        \     'clang_args': {
+        \         'common': [],
+        \         'c': ['-std=c11'],
+        \         'cpp': ['-std=c++11']
+        \     }
+        \ }
 
-    let config['clang_path'] = get(b:, 'asyncomplete_clang_path', config['clang_path'])
+    let config = get(a:opts, 'config', {})
+    let buffer_config = get(b:, 'asyncomplete_clang_config', {})
 
-    if exists('b:asyncomplete_clang_args')
-        for key in keys(b:asyncomplete_clang_args)
-            let config['clang_args'][key] = b:asyncomplete_clang_args[key]
-        endfor
-    endif
+    call s:update_dict(defaults, config)
+    call s:update_dict(defaults, buffer_config)
 
-    return config
+    return defaults
 endfunction
 
 function! s:get_clang_args(ctx, config) abort
@@ -91,4 +91,14 @@ function! s:write_to_tmp_file() abort
     let file = tempname()
     call writefile(getline(1, '$'), file)
     return file
+endfunction
+
+function! s:update_dict(dict, override)
+    for key in keys(a:override)
+        if has_key(a:dict, key) && type(a:dict[key]) == v:t_dict
+            call s:update_dict(a:dict[key], a:override[key])
+        else
+            let a:dict[key] = deepcopy(a:override[key])
+        endif
+    endfor
 endfunction
