@@ -15,10 +15,7 @@ function! asyncomplete#sources#clang#completor(opts, ctx) abort
     let clang_args = s:get_clang_args(a:ctx, config)
 
     let tmp_file = s:write_to_tmp_file()
-
-    let cur_column = a:ctx['col']
-    let text_length = len(matchstr(a:ctx['typed'], '\k\+$'))
-    let start_column = cur_column - text_length
+    let start_column = s:get_start_column(a:ctx)
 
     let cmd = [clang_path] + clang_args + ['-fsyntax-only',
         \ '-Xclang', '-code-completion-macros', '-Xclang', '-code-completion-at',
@@ -91,6 +88,12 @@ function! s:write_to_tmp_file() abort
     let file = tempname()
     call writefile(getline(1, '$'), file)
     return file
+endfunction
+
+function! s:get_start_column(ctx)
+    let cur_column = a:ctx['col']
+    let text_length = len(matchstr(a:ctx['typed'], '\k\+$'))
+    return cur_column - text_length
 endfunction
 
 function! s:update_dict(dict, override)
