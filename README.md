@@ -21,6 +21,8 @@ autocmd User asyncomplete_setup call asyncomplete#register_source(
 
 ## Configuration
 
+### Global
+
 ```vim
 autocmd User asyncomplete_setup call asyncomplete#register_source(
     \ asyncomplete#sources#clang#get_source_options({
@@ -39,6 +41,15 @@ autocmd User asyncomplete_setup call asyncomplete#register_source(
     \         }
     \     }
     \ }))
+```
+
+### Buffer
+
+```vim
+autocmd FileType cpp let b:asyncomplete_clang_config = {
+    \     'clang_args': [],
+    \     'lang': 'c++'
+    \ }
 ```
 
 ## License
