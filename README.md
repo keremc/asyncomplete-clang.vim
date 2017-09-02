@@ -16,11 +16,7 @@ Plug 'prabirshrestha/asyncomplete.vim'
 Plug 'keremc/asyncomplete-clang.vim'
 
 autocmd User asyncomplete_setup call asyncomplete#register_source(
-    \ asyncomplete#sources#clang#get_source_options({
-    \     'name': 'clang',
-    \     'whitelist': ['c', 'cpp'],
-    \     'completor': function('asyncomplete#sources#clang#completor')
-    \ }))
+    \ asyncomplete#sources#clang#get_source_options())
 ```
 
 ## Configuration
@@ -35,8 +31,8 @@ autocmd User asyncomplete_setup call asyncomplete#register_source(
     \         'clang_path': 'clang',
     \         'clang_args': {
     \             'common': [],
-    \             'c': ['-std=c11'],
-    \             'c++': ['-std=c++11']
+    \             'c': [],
+    \             'c++': []
     \         },
     \         'langs': {
     \             'c++': ['cpp']
