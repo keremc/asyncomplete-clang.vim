@@ -1,10 +1,9 @@
 function! asyncomplete#sources#clang#get_source_options(...) abort
-    return extend({
+    return extend(extend({
         \     'name': 'clang',
         \     'completor': function('asyncomplete#sources#clang#completor'),
-        \     'whitelist': ['c', 'cpp'],
-        \     'refresh_pattern': '\k\+$'
-        \ }, a:0 >= 1 ? a:1 : {})
+        \     'whitelist': ['c', 'cpp']
+        \ }, a:0 >= 1 ? a:1 : {}), {'refresh_pattern': '\k\+$'})
 endfunction
 
 function! asyncomplete#sources#clang#completor(opts, ctx) abort
