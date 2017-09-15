@@ -1,5 +1,3 @@
-let s:tmp_files = {}
-
 function! asyncomplete#sources#clang#get_source_options(...) abort
     return extend(extend({
         \     'name': 'clang',
@@ -91,6 +89,8 @@ function! s:get_clang_args(ctx, config) abort
 
     return args
 endfunction
+
+let s:tmp_files = {}
 
 function! s:write_to_tmp_file(ctx) abort
     let file_path = a:ctx['filepath']
