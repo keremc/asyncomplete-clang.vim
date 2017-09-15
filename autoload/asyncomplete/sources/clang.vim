@@ -107,13 +107,13 @@ function! s:write_to_tmp_file(ctx) abort
     return tmp_file
 endfunction
 
-function! s:get_start_column(ctx)
+function! s:get_start_column(ctx) abort
     let cur_column = a:ctx['col']
     let text_length = len(matchstr(a:ctx['typed'], '\k\+$'))
     return cur_column - text_length
 endfunction
 
-function! s:update_dict(dict, override)
+function! s:update_dict(dict, override) abort
     for key in keys(a:override)
         if type(a:override[key]) == v:t_dict &&
             \ has_key(a:dict, key) && type(a:dict[key]) == v:t_dict
@@ -124,7 +124,7 @@ function! s:update_dict(dict, override)
     endfor
 endfunction
 
-function! s:get_lang(ctx, config)
+function! s:get_lang(ctx, config) abort
     let buffer_config = a:config['buffer']
     if has_key(buffer_config, 'lang')
         return buffer_config['lang']
