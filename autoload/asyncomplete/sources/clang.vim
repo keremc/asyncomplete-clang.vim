@@ -98,7 +98,8 @@ function! s:write_to_tmp_file(ctx) abort
     if has_key(s:tmp_files, file_path)
         let tmp_file = s:tmp_files[file_path]
     else
-        let tmp_file = tempname()
+        let file_ext = fnamemodify(file_path, ':e')
+        let tmp_file = tempname() . (empty(file_ext) ? '' : '.' . file_ext)
         let s:tmp_files[file_path] = tmp_file
     endif
 
