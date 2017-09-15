@@ -1,3 +1,5 @@
+let s:tmp_files = {}
+
 function! asyncomplete#sources#clang#get_source_options(...) abort
     return extend(extend({
         \     'name': 'clang',
@@ -16,7 +18,7 @@ function! asyncomplete#sources#clang#completor(opts, ctx) abort
 
     let clang_args = s:get_clang_args(a:ctx, config)
 
-    let tmp_file = s:write_to_tmp_file()
+    let tmp_file = s:write_to_tmp_file(a:ctx)
     let start_column = s:get_start_column(a:ctx)
 
     let cmd = [clang_path] + clang_args + ['-fsyntax-only',
@@ -90,10 +92,19 @@ function! s:get_clang_args(ctx, config) abort
     return args
 endfunction
 
-function! s:write_to_tmp_file() abort
-    let file = tempname()
-    call writefile(getline(1, '$'), file)
-    return file
+function! s:write_to_tmp_file(ctx) abort
+    let file_path = a:ctx['filepath']
+
+    if has_key(s:tmp_files, file_path)
+        let tmp_file = s:tmp_files[file_path]
+    else
+        let tmp_file = tempname()
+        let s:tmp_files[file_path] = tmp_file
+    endif
+
+    call writefile(getbufline(a:ctx['bufnr'], 1, '$'), tmp_file)
+
+    return tmp_file
 endfunction
 
 function! s:get_start_column(ctx)
