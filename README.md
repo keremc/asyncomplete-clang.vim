@@ -36,7 +36,7 @@ autocmd User asyncomplete_setup call asyncomplete#register_source(
 ```
 
 | Option | Explanation |
-|---|---|---|
+|---|---|
 | config.clang_path | Path to the `clang` binary. If `clang` cannot be found in `PATH`, you must specify this manually. |
 | config.clang_args | Map where the key is a file type name and its value is a list of Clang arguments to be used with that file type. If there is no entry for a particular file type, ``'default'`` is used instead. |
 
