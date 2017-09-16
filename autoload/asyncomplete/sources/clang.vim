@@ -2,7 +2,7 @@ function! asyncomplete#sources#clang#get_source_options(...) abort
     return extend(extend({
         \     'name': 'clang',
         \     'completor': function('asyncomplete#sources#clang#completor'),
-        \     'whitelist': ['c', 'cpp']
+        \     'whitelist': ['c', 'cpp', 'objc', 'objcpp']
         \ }, a:0 >= 1 ? a:1 : {}), {'refresh_pattern': '\k\+$'})
 endfunction
 
