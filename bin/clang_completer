@@ -62,8 +62,9 @@ class Completer(object):
 
         for res in results.results:
             comp = self.__process_comp_str(res.string)
-            if comp is not None:
-                comps.append(comp)
+            if comp is None or comp in comps:
+                continue
+            comps.append(comp)
 
         return comps
 
