@@ -47,8 +47,7 @@ class Completer(object):
                 abbr += s.spelling
             elif s.isKindResultType():
                 menu = s.spelling
-            elif s.kind.name in ['LeftAngle', 'LeftParen', 'Placeholder',
-                    'Comma', 'RightParen', 'RightAngle']:
+            else:
                 abbr += s.spelling
 
         return {'word': word, 'abbr': abbr, 'menu': menu, 'dup': 1}
