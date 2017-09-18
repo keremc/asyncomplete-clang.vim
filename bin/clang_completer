@@ -35,22 +35,24 @@ class Completer(object):
 
     def __process_comp_str(self, string):
         word = ''
-        abbr = ''
         menu = ''
 
         if string.availability.name in ['NotAvailable', 'NotAccessible']:
             return None
+        elif len(string) == 1:
+            word = string[0].spelling
+        else:
+            for s in string:
+                if s.isKindResultType():
+                    menu += s.spelling
+                    menu += ' '
+                elif s.isKindTypedText():
+                    word = s.spelling
+                    menu += s.spelling
+                else:
+                    menu += s.spelling
 
-        for s in string:
-            if s.isKindTypedText():
-                word = s.spelling
-                abbr += s.spelling
-            elif s.isKindResultType():
-                menu = s.spelling
-            else:
-                abbr += s.spelling
-
-        return {'word': word, 'abbr': abbr, 'menu': menu, 'dup': 1}
+        return {'word': word, 'menu': menu, 'dup': 1}
 
     def get_comps(self, path, line, col, buf):
         comps = []
