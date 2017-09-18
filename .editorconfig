@@ -2,4 +2,4 @@ root = true
 
 [*.vim]
 indent_style = spaces
-indent_size = 4
+indent_size = 2
