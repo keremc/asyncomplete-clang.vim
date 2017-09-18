@@ -25,16 +25,16 @@ function! asyncomplete#sources#clang#completor(opts, ctx) abort
             \ })
     endif
 
+    let s:last_req_id = s:last_req_id + 1
+    let s:req_info[s:last_req_id] = [a:opts, a:ctx]
+
     call async#job#send(s:job_id, json_encode({
-        \     'id': s:last_req_id + 1,
+        \     'id': s:last_req_id,
         \     'path': a:ctx['filepath'],
         \     'line': a:ctx['lnum'],
         \     'col': s:find_start_col(a:ctx),
         \     'buf': join(getbufline(a:ctx['bufnr'], 1, '$'), "\n")
         \ }) . "\n")
-
-    let s:last_req_id = s:last_req_id + 1
-    let s:req_info[s:last_req_id] = [a:opts, a:ctx]
 endfunction
 
 function! s:handler(job_id, data, ev) abort
@@ -43,13 +43,15 @@ function! s:handler(job_id, data, ev) abort
     let resp_id = resp['id']
     let comps = resp['comps']
 
+    if empty(comps)
+        return
+    endif
+
     let info = s:req_info[resp_id]
     let opts = info[0]
     let ctx = info[1]
 
-    let matches = map(comps, {_, v -> {'word': v}})
-
-    call asyncomplete#complete(opts['name'], ctx, resp['col'], matches)
+    call asyncomplete#complete(opts['name'], ctx, resp['col'], comps)
 endfunction
 
 let s:ft_lang_mappings = {
