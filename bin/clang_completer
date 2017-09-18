@@ -1,0 +1,61 @@
+#!/usr/bin/env python2
+
+from __future__ import print_function
+
+import json
+
+from clang.cindex import Config, Index
+
+
+class Completer(object):
+    def __init__(self):
+        if not Config.loaded:
+            Config.set_compatibility_check(False)
+        self.idx = Index.create()
+        self.trans_units = {}
+
+    def collect_args(self, path):
+        return [
+            '-std=c++14',
+            '-I/usr/include/c++/7',
+            '-I/usr/include/c++/7/x86_64-redhat-linux',
+            '-I/usr/include/c++/7/backward',
+            '-I/usr/local/include',
+            '-I/usr/lib64/clang/4.0.1/include',
+            '-I/usr/include'
+        ]
+
+    def parse(self, path, buf):
+        if path in self.trans_units:
+            tu = self.trans_units[path]
+            tu.reparse([(path, buf)])
+        else:
+            tu = self.idx.parse(path, self.collect_args(path), [(path, buf)])
+            self.trans_units[path] = tu
+
+    def get_comps(self, path, line, col, buf):
+        comps = []
+
+        tu = self.trans_units[path]
+        results = tu.codeComplete(path, line, col, [(path, buf)], True)
+        for res in results.results:
+            for s in res.string:
+                if s.isKindTypedText():
+                    comps.append(s.spelling)
+
+        return comps
+
+
+while True:
+    line = raw_input()
+    req = json.loads(line)
+
+    path = str(req['path'])
+    col = req['col']
+    buf = str(req['buf'])
+
+    comp = Completer()
+    comp.parse(path, buf)
+    comps = comp.get_comps(path, req['line'], col, buf)
+
+    print(json.dumps({'comps': comps, 'id': req['id'], 'col': col}))
