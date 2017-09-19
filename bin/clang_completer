@@ -42,15 +42,15 @@ class Completer(object):
         elif len(string) == 1:
             word = string[0].spelling
         else:
-            for s in string:
-                if s.isKindResultType():
-                    menu += s.spelling
+            for chunk in string:
+                if chunk.isKindResultType():
+                    menu += chunk.spelling
                     menu += ' '
-                elif s.isKindTypedText():
-                    word = s.spelling
-                    menu += s.spelling
+                elif chunk.isKindTypedText():
+                    word = chunk.spelling
+                    menu += chunk.spelling
                 else:
-                    menu += s.spelling
+                    menu += chunk.spelling
 
         return {'word': word, 'menu': menu, 'dup': 1}
 
