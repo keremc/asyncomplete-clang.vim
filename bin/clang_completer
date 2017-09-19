@@ -24,13 +24,13 @@ def collect_args(path):
     ]
 
 
-def parse(path, buf):
+def get_tu(path):
     if path in trans_units:
         tu = trans_units[path]
-        tu.reparse([(path, buf)])
     else:
-        tu = idx.parse(path, collect_args(path), [(path, buf)])
+        tu = idx.parse(path, collect_args(path))
         trans_units[path] = tu
+    return tu
 
 
 def process_comp_str(string):
@@ -58,7 +58,7 @@ def process_comp_str(string):
 def get_comps(path, line, col, buf):
     comps = []
 
-    tu = trans_units[path]
+    tu = get_tu(path)
     results = tu.codeComplete(path, line, col, [(path, buf)], True)
 
     for res in results.results:
@@ -70,15 +70,31 @@ def get_comps(path, line, col, buf):
     return comps
 
 
+def process(req_type, req):
+    if req_type == 'parse':
+        tu = get_tu(str(req['path']))
+        tu.reparse()
+    elif req_type == 'comp':
+        return {'comps': get_comps(
+            str(req['path']),
+            req['line'],
+            req['col'],
+            str(req['buf'])
+        )}
+
+
 while True:
     line = raw_input()
+
     req = json.loads(line)
+    req_id = req['id']
+    req_type = req['type']
 
-    path = str(req['path'])
-    col = req['col']
-    buf = str(req['buf'])
+    resp = process(req_type, req)
 
-    parse(path, buf)
-    comps = get_comps(path, req['line'], col, buf)
+    if resp is None:
+        continue
 
-    print(json.dumps({'comps': comps, 'id': req['id'], 'col': col}))
+    resp['id'] = req_id
+    resp['type'] = req_type
+    print(json.dumps(resp))
