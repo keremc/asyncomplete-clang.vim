@@ -7,17 +7,17 @@ let s:last_req_id = 0
 let s:req_info = {}
 
 let s:ft_lang_mappings = {
-    \   'cpp': 'c++',
-    \   'objc': 'objective-c',
-    \   'objcpp': 'objective-c++'
-    \ }
+  \   'cpp': 'c++',
+  \   'objc': 'objective-c',
+  \   'objcpp': 'objective-c++'
+  \ }
 
 function! asyncomplete#sources#clang#get_source_options(...) abort
   return extend(extend({
-      \   'name': 'clang',
-      \   'completor': function('asyncomplete#sources#clang#completor'),
-      \   'whitelist': ['c', 'cpp', 'objc', 'objcpp']
-      \ }, a:0 >= 1 ? a:1 : {}), {'refresh_pattern': '\k\+$'})
+    \   'name': 'clang',
+    \   'completor': function('asyncomplete#sources#clang#completor'),
+    \   'whitelist': ['c', 'cpp', 'objc', 'objcpp']
+    \ }, a:0 >= 1 ? a:1 : {}), {'refresh_pattern': '\k\+$'})
 endfunction
 
 function! s:init() abort
@@ -27,8 +27,8 @@ function! s:init() abort
 
   if s:job_id <= 0
     let s:job_id = async#job#start(['python2', '-u', s:clang_completer_path], {
-        \   'on_stdout': function('s:handle')
-        \ })
+      \   'on_stdout': function('s:handle')
+      \ })
   endif
   if s:job_id <= 0
     return v:false
@@ -51,11 +51,11 @@ function! asyncomplete#sources#clang#completor(opts, ctx) abort
   let start_col = s:find_start_col(a:ctx)
 
   call s:send_req('comp', {
-      \   'path': a:ctx['filepath'],
-      \   'line': a:ctx['lnum'],
-      \   'col': start_col,
-      \   'buf': join(getline(1, '$'), "\n")
-      \ }, [a:opts, a:ctx, start_col])
+    \   'path': a:ctx['filepath'],
+    \   'line': a:ctx['lnum'],
+    \   'col': start_col,
+    \   'buf': join(getline(1, '$'), "\n")
+    \ }, [a:opts, a:ctx, start_col])
 endfunction
 
 function! s:handle(job_id, data, ev) abort
@@ -81,17 +81,17 @@ endfunction
 
 function! s:on_save() abort
   call s:send_req('parse', {
-      \   'path': expand('%:p')
-      \ }, [])
+    \   'path': expand('%:p')
+    \ }, [])
 endfunction
 
 function! s:send_req(type, data, info) abort
   let s:last_req_id = s:last_req_id + 1
   let s:req_info[s:last_req_id] = a:info
   call async#job#send(s:job_id, json_encode(extend(a:data, {
-      \   'id': s:last_req_id,
-      \   'type': a:type
-      \ })) . "\n")
+    \   'id': s:last_req_id,
+    \   'type': a:type
+    \ })) . "\n")
 endfunction
 
 function! s:find_start_col(ctx) abort
