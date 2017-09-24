@@ -5,8 +5,9 @@ from __future__ import print_function
 import json
 import logging
 import os
+import os.path
 
-from clang.cindex import Config, Index
+from clang.cindex import Config, Index, CompilationDatabase
 
 
 def get_logger():
@@ -32,11 +33,38 @@ Config.set_compatibility_check(False)
 
 idx = Index.create()
 trans_units = {}
+compilation_dbs = {}
+
+
+def find_compilation_db(path):
+    last_dir = path
+    while True:
+        parent_dir = os.path.abspath(os.path.join(last_dir, '..'))
+
+        if parent_dir == last_dir:
+            break
+        last_dir = parent_dir
+
+        if os.path.isfile(os.path.join(parent_dir, 'compile_commands.json')):
+            return parent_dir
+
+
+def get_compilation_db(path):
+    compilation_db_dir = find_compilation_db(path)
+
+    if compilation_db_dir is None:
+        return
+
+    if path in compilation_dbs:
+        compilation_db = compilation_dbs[compilation_db_dir]
+    else:
+        compilation_db = CompilationDatabase.fromDirectory(compilation_db_dir)
+        compilation_dbs[compilation_db_dir] = compilation_db
+    return compilation_db
 
 
 def collect_args(path):
-    return [
-        '-std=c++14',
+    args = [
         '-I/usr/include/c++/7',
         '-I/usr/include/c++/7/x86_64-redhat-linux',
         '-I/usr/include/c++/7/backward',
@@ -44,6 +72,17 @@ def collect_args(path):
         '-I/usr/lib64/clang/4.0.1/include',
         '-I/usr/include'
     ]
+
+    compilation_db = get_compilation_db(path)
+    if compilation_db is not None:
+        compile_cmds = compilation_db.getCompileCommands(path)
+        if compile_cmds is not None:
+            for arg in compile_cmds[0].arguments:
+                if arg == path:
+                    continue
+                args.append(arg)
+
+    return args
 
 
 def get_trans_unit(path):
