@@ -1,5 +1,4 @@
 let s:cur_file = expand('<sfile>:p')
-let s:clang_completer_path = fnamemodify(s:cur_file, ':h:h:h:h') . '/bin/clang_completer'
 
 let s:job_id = 0
 
@@ -21,17 +20,26 @@ function! asyncomplete#sources#clang#get_source_options(...) abort
 endfunction
 
 function! s:init() abort
-  if !executable('python2') || !filereadable(s:clang_completer_path)
-    return v:false
-  endif
-
   if s:job_id <= 0
-    let s:job_id = async#job#start(['python2', '-u', s:clang_completer_path], {
+    let clang_completer_path = fnamemodify(s:cur_file, ':h:h:h:h') . '/bin/clang_completer'
+    if !filereadable(clang_completer_path)
+      return v:false
+    endif
+
+    if executable('python2')
+      let py = 'python2'
+    elseif executable('python')
+      let py = 'python'
+    else
+      return v:false
+    endif
+
+    let s:job_id = async#job#start([py, '-u', clang_completer_path], {
       \   'on_stdout': function('s:handle')
       \ })
-  endif
-  if s:job_id <= 0
-    return v:false
+    if s:job_id <= 0
+      return v:false
+    endif
   endif
 
   if !exists('#asyncomplete_clang#BufWritePost#<buffer>')
@@ -49,7 +57,6 @@ function! asyncomplete#sources#clang#completor(opts, ctx) abort
   endif
 
   let start_col = s:find_start_col(a:ctx)
-
   call s:send_req('comp', {
     \   'path': a:ctx['filepath'],
     \   'line': a:ctx['lnum'],
@@ -66,7 +73,6 @@ function! s:handle(job_id, data, ev) abort
 
   if resp_type == 'comp'
     let comps = resp['comps']
-
     if empty(comps)
       return
     endif
@@ -74,7 +80,6 @@ function! s:handle(job_id, data, ev) abort
     let opts = info[0]
     let ctx = info[1]
     let start_col = info[2]
-
     call asyncomplete#complete(opts['name'], ctx, start_col, comps)
   endif
 endfunction
