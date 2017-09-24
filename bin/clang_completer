@@ -46,13 +46,13 @@ def collect_args(path):
     ]
 
 
-def get_tu(path):
+def get_trans_unit(path):
     if path in trans_units:
-        tu = trans_units[path]
+        trans_unit = trans_units[path]
     else:
-        tu = idx.parse(path, collect_args(path))
-        trans_units[path] = tu
-    return tu
+        trans_unit = idx.parse(path, collect_args(path))
+        trans_units[path] = trans_unit
+    return trans_unit
 
 
 def process_comp_str(string):
@@ -80,8 +80,8 @@ def process_comp_str(string):
 def get_comps(path, line, col, buf):
     comps = []
 
-    tu = get_tu(path)
-    results = tu.codeComplete(path, line, col, [(path, buf)], True)
+    trans_unit = get_trans_unit(path)
+    results = trans_unit.codeComplete(path, line, col, [(path, buf)], True)
 
     for res in results.results:
         comp = process_comp_str(res.string)
@@ -94,8 +94,8 @@ def get_comps(path, line, col, buf):
 
 def process(req_type, req):
     if req_type == 'parse':
-        tu = get_tu(str(req['path']))
-        tu.reparse()
+        trans_unit = get_trans_unit(str(req['path']))
+        trans_unit.reparse()
     elif req_type == 'comp':
         return {'comps': get_comps(
             str(req['path']),
