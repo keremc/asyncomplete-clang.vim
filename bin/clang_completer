@@ -94,16 +94,16 @@ def get_trans_unit(path):
     return trans_unit
 
 
-def process_comp_str(string):
+def process_comp_chunks(chunks):
     word = ''
     menu = ''
 
-    if string.availability.name in ['NotAvailable', 'NotAccessible']:
+    if chunks.availability.name in ['NotAvailable', 'NotAccessible']:
         return None
-    elif len(string) == 1:
-        word = string[0].spelling
+    elif len(chunks) == 1:
+        word = chunks[0].spelling
     else:
-        for chunk in string:
+        for chunk in chunks:
             if chunk.isKindResultType():
                 menu += chunk.spelling
                 menu += ' '
@@ -123,7 +123,7 @@ def get_comps(path, line, col, buf):
     results = trans_unit.codeComplete(path, line, col, [(path, buf)], True)
 
     for res in results.results:
-        comp = process_comp_str(res.string)
+        comp = process_comp_chunks(res.string)
         if comp is None or comp in comps:
             continue
         comps.append(comp)
