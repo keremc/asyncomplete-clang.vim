@@ -26,6 +26,6 @@ Should you wish to pass any arguments to Clang, you can create a file named `com
 
 ## License
 
-See [LICENSE](https://raw.githubusercontent.com/keremc/asyncomplete-clang.vim/master/LICENSE). For files under the `bin/clang` directory, see [LICENSE.CLANG](LICENSE.CLANG).
+See [LICENSE](LICENSE). For files under [the `bin/clang` directory](bin/clang), see [LICENSE.CLANG](LICENSE.CLANG).
 
 [asyncomplete.vim]: https://github.com/prabirshrestha/asyncomplete.vim
