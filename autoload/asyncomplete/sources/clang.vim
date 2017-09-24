@@ -3,8 +3,8 @@ let s:clang_completer_path = fnamemodify(s:cur_file, ':h:h:h:h') . '/bin/clang_c
 
 let s:job_id = 0
 
-let s:last_req_id = 0
-let s:req_info = {}
+let s:last_req_id = -1
+let s:req_info = []
 
 let s:ft_lang_mappings = {
   \   'cpp': 'c++',
@@ -87,7 +87,7 @@ endfunction
 
 function! s:send_req(type, data, info) abort
   let s:last_req_id = s:last_req_id + 1
-  let s:req_info[s:last_req_id] = a:info
+  call add(s:req_info, a:info)
   call async#job#send(s:job_id, json_encode(extend(a:data, {
     \   'id': s:last_req_id,
     \   'type': a:type
